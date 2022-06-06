@@ -69,7 +69,7 @@ router.put("/new-job/:id/form2", async (req, res, next) => {
     { title: title, description: description },
     { new: true }
   )
-    .then((response) => console.log(response))
+    .then((response) => res.json(response.data))
     .catch((err) => res.json(err));
 });
 

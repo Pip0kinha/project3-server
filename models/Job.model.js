@@ -12,6 +12,10 @@ const jobSchema = new Schema(
       type: String,
       required: true,
     },
+    workExperience: {
+      type: String,
+      required: true,
+    },
     coverLetter: [{ type: Schema.Types.ObjectId, ref: "CoverLetter" }],
   },
   {

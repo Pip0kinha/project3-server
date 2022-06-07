@@ -16,6 +16,7 @@ router.get("/user-profile", (req, res, next) => {
   console.log(req.payload);
   User.findById(_id)
     .populate("jobList")
+    .populate({ path: "jobList", populate: { path: "coverLetter" } })
     .then((user) => {
       console.log(user);
       res.json(user);

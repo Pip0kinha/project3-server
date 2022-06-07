@@ -37,4 +37,12 @@ router.put("/job/:coverLetterId/cover-letter/edit", async (req, res, next) => {
 
 });
 
+router.delete("/job/:coverLetterId/cover-letter/delete", (req,res, next) => {
+  const {coverLetterId} = req.params
+
+  CoverLetter.findByIdAndRemove(coverLetterId)
+  .then((response) => res.json(response))
+  .catch((err) => res.json(err));
+});
+
 module.exports = router;

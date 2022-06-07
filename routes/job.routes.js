@@ -91,15 +91,17 @@ router.put("/new-job/form2", async (req, res, next) => {
     console.log(updatedJob);
 
     // here we create the prompt for our external API call:
-    let prompt =
-      updatedJob.title +
-      " " +
-      updatedJob.description +
-      " " +
-      `write a cover letter for this job description. My name is ${name} and my surname is ${surname}`;
+    let prompt = `
+      Applicant name: ${name} ${surname}\n
+      Work Experience: ${updatedJob.workExperience}\n
+      Job Title: ${updatedJob.title}\n
+      Job Description: ${updatedJob.description}\n
+      
+      Write a cover letter for the above job opening. The cover letter should start with a salutation to the recruiter, and include the applicant's name and work experience:
+      `;
     let body = {
       prompt: prompt,
-      max_tokens: 1000,
+      max_tokens: 2000,
       temperature: 0,
     };
 

@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const Job = require("../models/Job.model");
 const User = require("../models/User.model");
+const CoverLetter = require("../models/CoverLetter.model");
+const axios = require("axios");
 
 // start handling route below:
 
@@ -34,43 +36,102 @@ router.delete("/job/:id", (req, res, next) => {
     .catch((err) => res.json(err));
 });
 
-router.post("/new-job/:id/form", (req, res, next) => {
-  const { id } = req.params;
+router.post("/new-job/form", async (req, res, next) => {
+  const { _id } = req.payload;
   const { workExperience } = req.body;
 
-  return Job.create({
+  try {
+    const createdJob = await Job.create({
+      title: "starting title",
+      description: "starting description",
+      workExperience: workExperience,
+      coverLetter: [],
+    });
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      { $push: { jobList: createdJob._id } },
+      { new: true }
+    );
+    return res.json(createdJob);
+  } catch {
+    (err) => res.json(err);
+  }
+
+  /* return Job.create({
     title: "starting title",
     description: "starting description",
     workExperience: workExperience,
     coverLetter: [],
   })
     .then((newJob) => {
+      console.log(newJob);
+      createdJob = newJob;
       return User.findByIdAndUpdate(
         id,
         { $push: { jobList: newJob._id } },
         { new: true }
       );
     })
-    .then((response) => res.json(response.data))
-    .catch((err) => res.json(err));
+    .then((response) => res.json(response))
+    .catch((err) => res.json(err)); */
 });
 
-router.put("/new-job/:id/form2", async (req, res, next) => {
-  const { id } = req.params;
-  const { title, description } = req.body;
-  console.log(req.body);
-  const jobID = await User.findById(id)
-    .then((user) => user.jobList[user.jobList.length - 1])
-    .catch((err) => console.log(err));
-  console.log(jobID);
+router.put("/new-job/form2", async (req, res, next) => {
+  const { _id } = req.payload;
+  const { title, description, jobId } = req.body;
 
-  return await Job.findByIdAndUpdate(
-    jobID,
-    { title: title, description: description },
-    { new: true }
-  )
-    .then((response) => res.json(response.data))
-    .catch((err) => res.json(err));
+  try {
+    console.log("hello from the try block");
+    const updatedJob = await Job.findByIdAndUpdate(
+      jobId,
+      { title: title, description: description },
+      { new: true }
+    );
+
+    console.log(updatedJob);
+
+    // here we create the prompt for our external API call:
+    let prompt =
+      updatedJob.title +
+      " " +
+      updatedJob.description +
+      " " +
+      "write a cover letter for this job description";
+    let body = {
+      prompt: "write me a cover letter",
+      max_tokens: 1000,
+      temperature: 0.3,
+    };
+
+    console.log(body);
+
+    // here we make the call:
+    let opeanAiResponse = await axios.post(
+      `https://api.openai.com/v1/engines/text-davinci-002/completions`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_BEARER_TOKEN}`,
+        },
+      }
+    );
+    console.log("hellor from the API side");
+    //console.log(opeanAiResponse);
+
+    let coverLetterText = opeanAiResponse.data.choices[0].text; // if the response.choices.text os not a String, needs to convert to string
+
+    let newCoverLetter = await CoverLetter.create({ text: coverLetterText });
+    console.log(newCoverLetter);
+
+    let jobWithCoverLetter = await Job.findByIdAndUpdate(
+      jobId,
+      { $push: { coverLetter: newCoverLetter._id } },
+      { new: true }
+    );
+    return res.json(newCoverLetter);
+  } catch {
+    (err) => res.json(err);
+  }
 });
 
 module.exports = router;

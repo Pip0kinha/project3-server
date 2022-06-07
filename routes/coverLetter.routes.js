@@ -5,7 +5,7 @@ const CoverLetter = require("../models/CoverLetter.model");
 
 //
 
-router.post("/job/:jobId/cover-letter", async (req, res, next) => {
+router.get("/job/:coverLetterId/cover-letter", async (req, res, next) => {
   try {
     // here we are preparing the prompt for our call to open AI:
     //const { title, description } = req.body;

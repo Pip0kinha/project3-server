@@ -78,7 +78,7 @@ router.post("/new-job/form", async (req, res, next) => {
 
 router.put("/new-job/form2", async (req, res, next) => {
   const { _id } = req.payload;
-  const { title, description, jobId } = req.body;
+  const { title, description, jobId, name, surname } = req.body;
 
   try {
     console.log("hello from the try block");
@@ -96,11 +96,11 @@ router.put("/new-job/form2", async (req, res, next) => {
       " " +
       updatedJob.description +
       " " +
-      "write a cover letter for this job description";
+      `write a cover letter for this job description. My name is ${name} and my surname is ${surname}`;
     let body = {
-      prompt: "write me a cover letter",
+      prompt: prompt,
       max_tokens: 1000,
-      temperature: 0.3,
+      temperature: 0,
     };
 
     console.log(body);

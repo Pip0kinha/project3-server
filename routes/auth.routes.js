@@ -115,7 +115,8 @@ router.post("/login", isLoggedOut, (req, res, next) => {
         } else {
           /* req.session.user = user; */
           // Create an object that will be set as the token payload
-          const payload = { email, password, _id:user._id };
+          const {email, password, _id, jobList} = user
+          const payload = { email, password, _id, jobList};
 
           // Create and sign the token
           const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -124,7 +125,7 @@ router.post("/login", isLoggedOut, (req, res, next) => {
           });
 
           // Send the token as the response
-          return res.status(200).json({ authToken: authToken });
+          return res.status(200).json({ authToken });
         }
 
         // req.session.user = user._id; // ! better and safer but in this case we saving the entire user object

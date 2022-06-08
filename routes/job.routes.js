@@ -136,4 +136,61 @@ router.put("/new-job/form2", async (req, res, next) => {
   }
 });
 
+router.post("/user-profile/form", async (req, res, next) => {
+  const { _id } = req.payload;
+  const { workExperience, title, description } = req.body;
+
+  try {
+    const createdJob = await Job.create({
+      title: title,
+      description: description,
+      workExperience: workExperience,
+      coverLetter: [],
+    });
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      { $push: { jobList: createdJob._id } },
+      { new: true }
+    );
+
+    let prompt = `
+    Applicant name: ${updatedUser.name} ${updatedUser.surname}\n
+    Work Experience: ${createdJob.workExperience}\n
+    Job Title: ${createdJob.title}\n
+    Job Description: ${createdJob.description}\n
+    
+    Write a cover letter for the above job opening. The cover letter should start with a salutation to the recruiter, and include the applicant's name and work experience:
+    `;
+    let body = {
+      prompt: prompt,
+      max_tokens: 2000,
+      temperature: 0,
+    };
+    // here we make the call:
+    let opeanAiResponse = await axios.post(
+      `https://api.openai.com/v1/engines/text-davinci-002/completions`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_BEARER_TOKEN}`,
+        },
+      }
+    );
+
+    let coverLetterText = opeanAiResponse.data.choices[0].text; // if the response.choices.text os not a String, needs to convert to string
+
+    let newCoverLetter = await CoverLetter.create({ text: coverLetterText });
+    console.log(newCoverLetter);
+
+    let jobWithCoverLetter = await Job.findByIdAndUpdate(
+      createdJob._id,
+      { $push: { coverLetter: newCoverLetter._id } },
+      { new: true }
+    );
+    return res.json(newCoverLetter);
+  } catch {
+    (err) => res.json(err);
+  }
+});
+
 module.exports = router;

@@ -5,7 +5,7 @@ const CoverLetter = require("../models/CoverLetter.model");
 const axios = require("axios");
 
 // start handling route below:
-
+/* 
 router.post("/job", (req, res, next) => {
   const { title, description, user } = req.body;
 
@@ -34,7 +34,7 @@ router.delete("/job/:id", (req, res, next) => {
   Job.findByIdAndRemove(jobId)
     .then((response) => res.json(response))
     .catch((err) => res.json(err));
-});
+}); */
 
 router.post("/new-job/form", async (req, res, next) => {
   const { _id } = req.payload;

@@ -56,24 +56,6 @@ router.post("/new-job/form", async (req, res, next) => {
   } catch {
     (err) => res.json(err);
   }
-
-  /* return Job.create({
-    title: "starting title",
-    description: "starting description",
-    workExperience: workExperience,
-    coverLetter: [],
-  })
-    .then((newJob) => {
-      console.log(newJob);
-      createdJob = newJob;
-      return User.findByIdAndUpdate(
-        id,
-        { $push: { jobList: newJob._id } },
-        { new: true }
-      );
-    })
-    .then((response) => res.json(response))
-    .catch((err) => res.json(err)); */
 });
 
 router.put("/new-job/form2", async (req, res, next) => {

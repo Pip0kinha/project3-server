@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
-const { isAuthenticated } = require("./../middleware/jwt.middleware.js"); // <== IMPORT
+const { isAuthenticated } = require("./../middleware/jwt.middleware.js");
 
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
@@ -32,18 +32,6 @@ router.post("/signup", isLoggedOut, (req, res) => {
       errorMessage: "Your password needs to be at least 8 characters long.",
     });
   }
-
-  //   ! This use case is using a regular expression to control for special characters and min length
-  /*
-  const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
-
-  if (!regex.test(password)) {
-    return res.status(400).json( {
-      errorMessage:
-        "Password needs to have at least 8 chars and must contain at least one number, one lowercase and one uppercase letter.",
-    });
-  }
-  */
 
   // Search the database for a user with the email submitted in the form
   User.findOne({ email }).then((found) => {
@@ -113,10 +101,9 @@ router.post("/login", isLoggedOut, (req, res, next) => {
         if (!isSamePassword) {
           return res.status(400).json({ errorMessage: "Wrong credentials." });
         } else {
-          /* req.session.user = user; */
           // Create an object that will be set as the token payload
-          const {email, password, _id, jobList} = user
-          const payload = { email, password, _id, jobList};
+          const { email, password, _id, jobList } = user;
+          const payload = { email, password, _id, jobList };
 
           // Create and sign the token
           const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -127,14 +114,10 @@ router.post("/login", isLoggedOut, (req, res, next) => {
           // Send the token as the response
           return res.status(200).json({ authToken });
         }
-
-        // req.session.user = user._id; // ! better and safer but in this case we saving the entire user object
       });
     })
 
     .catch((err) => {
-      // in this case we are sending the error handling to the error handling middleware that is defined in the error handling file
-      // you can just as easily run the res.status that is commented out below
       next(err);
       // return res.status(500).render("login", { errorMessage: err.message });
     });
@@ -151,8 +134,6 @@ router.get("/logout", isLoggedIn, (req, res) => {
 
 // GET  /auth/verify  -  Used to verify JWT stored on the client
 router.get("/verify", isAuthenticated, (req, res, next) => {
-  // <== CREATE NEW ROUTE
-
   // If JWT token is valid the payload gets decoded by the
   // isAuthenticated middleware and made available on `req.payload`
   console.log(`req.payload`, req.payload);
